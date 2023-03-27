@@ -8,10 +8,23 @@ function create_user_and_database() {
 	local owner=$(echo $1 | tr ',' ' ' | awk  '{print $2}')
 	echo "  Creating user and database '$database'"
 	psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-	    CREATE USER $owner IF NOT EXISTS;
-	    CREATE DATABASE $database;
-	    GRANT ALL PRIVILEGES ON DATABASE $database TO $owner;
-EOSQL
+		DO
+		\$do\$
+	    BEGIN
+			IF EXISTS (
+				SELECT * FROM pg_catalog.pg_user
+				WHERE pg_user.usename = '$owner'
+			) THEN
+				RAISE NOTICE 'Role $owner already exists, skipping creation';
+			ELSE
+				CREATE USER "$owner" LOGIN PASSWORD '$POSTGRES_PASSWORD';
+			END IF;
+		END
+		\$do\$;
+	    CREATE DATABASE "$database";
+	    GRANT ALL ON DATABASE "$database" TO "$owner";
+		ALTER DATABASE "$database" OWNER TO "$owner";
+	EOSQL
 }
 
 if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
