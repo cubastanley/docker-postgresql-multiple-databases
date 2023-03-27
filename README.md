@@ -27,8 +27,9 @@ Clone the repository, mount its directory as a volume into
         volumes:
             - ../docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1,ownerOfDB1: DB2,ownerOfDB2: ...DB(n), ownerOfDB(n)"
-            - POSTGRES_PASSWORD=
+            - POSTGRES_MULTIPLE_DATABASES: db1,db2
+            - POSTGRES_USER: myapp
+            - POSTGRES_PASSWORD:
 
 ### By building a custom image
 
@@ -44,12 +45,13 @@ to the container:
     myapp-postgresql:
         image: eu.gcr.io/your-project/postgres-multi-db
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1,ownerOfDB1: DB2,ownerOfDB2: ...DB(n), ownerOfDB(n)"
-            - POSTGRES_PASSWORD=
+            - POSTGRES_MULTIPLE_DATABASES: db1,db2
+            - POSTGRES_USER: myapp
+            - POSTGRES_PASSWORD:
 
 ### Non-standard database names
 
 If you need to use non-standard database names (hyphens, uppercase letters etc), quote them in `POSTGRES_MULTIPLE_DATABASES`:
 
         environment:
-            - POSTGRES_MULTIPLE_DATABASES="DB1","ownerOfDB1": "DB2","ownerOfDB2": ..."DB(n)", "ownerOfDB(n)"
+            - POSTGRES_MULTIPLE_DATABASES: "test-db-1","test-db-2"
